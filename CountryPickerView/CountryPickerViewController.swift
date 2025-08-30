@@ -214,9 +214,10 @@ extension CountryPickerViewController: UISearchResultsUpdating {
         if let text = searchController.searchBar.text, text.count > 0 {
             isSearchMode = true
             searchResults.removeAll()
-            
+
             var indexArray = [Country]()
-            
+
+            // If we only want to show preferred countries, use the preferredCountries array
             if showOnlyPreferredSection && hasPreferredSection,
                 let array = countries[dataSource.preferredCountriesSectionTitle!] {
                 indexArray = array
@@ -224,16 +225,23 @@ extension CountryPickerViewController: UISearchResultsUpdating {
                 indexArray = array
             }
 
+            // Filter countries based on the search query
             searchResults.append(contentsOf: indexArray.filter({
                 let name = ($0.localizedName(dataSource.localeForCountryNameInList) ?? $0.name).lowercased()
-                let code = $0.code.lowercased()
+                let code = $0.code.lowercased() // Country code (e.g., "US", "IN")
+                let phoneCode = $0.phoneCode.lowercased() // Phone code (e.g., "+1", "+91")
                 let query = text.lowercased()
-                return name.hasPrefix(query) || (dataSource.showCountryCodeInList && code.hasPrefix(query))
+
+                // Check if the name, country code, or phone code contains the query
+                return name.contains(query) ||
+                       (dataSource.showCountryCodeInList && code.contains(query)) ||
+                       (dataSource.showPhoneCodeInList && phoneCode.contains(query))
             }))
         }
         tableView.reloadData()
     }
 }
+
 
 // MARK:- UISearchBarDelegate
 extension CountryPickerViewController: UISearchBarDelegate {

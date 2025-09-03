@@ -32,7 +32,6 @@ public class CountryPickerViewController: UITableViewController {
     
     override public func viewDidLoad() {
         super.viewDidLoad()
-        
         prepareTableItems()
         prepareNavItem()
         prepareSearchBar()

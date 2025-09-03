@@ -665,6 +665,8 @@
 				en,
 			);
 			mainGroup = 004CA2E11F7056E600B690B8;
+			packageReferences = (
+			);
 			productRefGroup = 004CA2EC1F7056E700B690B8 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";

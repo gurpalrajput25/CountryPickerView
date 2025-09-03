@@ -9,7 +9,7 @@
 import UIKit
 
 public class CountryPickerViewController: UITableViewController {
-
+    
     public var searchController: UISearchController?
     fileprivate var searchResults = [Country]()
     fileprivate var isSearchMode = false
@@ -17,7 +17,7 @@ public class CountryPickerViewController: UITableViewController {
     fileprivate var countries = [String: [Country]]()
     fileprivate var hasPreferredSection: Bool {
         return dataSource.preferredCountriesSectionTitle != nil &&
-            dataSource.preferredCountries.count > 0
+        dataSource.preferredCountries.count > 0
     }
     fileprivate var showOnlyPreferredSection: Bool {
         return dataSource.showOnlyPreferredSection
@@ -37,7 +37,15 @@ public class CountryPickerViewController: UITableViewController {
         prepareNavItem()
         prepareSearchBar()
     }
-   
+    
+    public override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(true)
+        searchController?.searchBar.text = ""
+        isSearchMode = false
+        searchResults.removeAll()
+        tableView.reloadData()
+    }
+    
 }
 
 // UI Setup
@@ -74,7 +82,7 @@ extension CountryPickerViewController {
     
     func prepareNavItem() {
         navigationItem.title = dataSource.navigationTitle
-
+        
         // Add a close button if this is the root view controller
         if navigationController?.viewControllers.count == 1 {
             let closeButton = dataSource.closeButtonNavigationItem
@@ -87,8 +95,7 @@ extension CountryPickerViewController {
     func prepareSearchBar() {
         let searchBarPosition = dataSource.searchBarPosition
         if searchBarPosition == .hidden  {
-            return
-        }
+            return }
         searchController = UISearchController(searchResultsController:  nil)
         searchController?.searchResultsUpdater = self
         searchController?.dimsBackgroundDuringPresentation = false
@@ -96,7 +103,7 @@ extension CountryPickerViewController {
         searchController?.definesPresentationContext = true
         searchController?.searchBar.delegate = self
         searchController?.delegate = self
-
+        
         switch searchBarPosition {
         case .tableViewHeader: tableView.tableHeaderView = searchController?.searchBar
         case .navigationBar: navigationItem.titleView = searchController?.searchBar
@@ -124,11 +131,11 @@ extension CountryPickerViewController {
         let identifier = String(describing: CountryTableViewCell.self)
         
         let cell = tableView.dequeueReusableCell(withIdentifier: identifier) as? CountryTableViewCell
-            ?? CountryTableViewCell(style: .default, reuseIdentifier: identifier)
+        ?? CountryTableViewCell(style: .default, reuseIdentifier: identifier)
         
         let country = isSearchMode ? searchResults[indexPath.row]
-            : countries[sectionsTitles[indexPath.section]]![indexPath.row]
-
+        : countries[sectionsTitles[indexPath.section]]![indexPath.row]
+        
         var name = country.localizedName(dataSource.localeForCountryNameInList) ?? country.name
         if dataSource.showCountryCodeInList {
             name = "\(name) (\(country.code))"
@@ -140,7 +147,7 @@ extension CountryPickerViewController {
         
         cell.flgSize = dataSource.cellImageViewSize
         cell.imageView?.clipsToBounds = true
-
+        
         cell.imageView?.layer.cornerRadius = dataSource.cellImageViewCornerRadius
         cell.imageView?.layer.masksToBounds = true
         
@@ -150,7 +157,7 @@ extension CountryPickerViewController {
             cell.textLabel?.textColor = color
         }
         cell.accessoryType = country == countryPickerView.selectedCountry &&
-            dataSource.showCheckmarkInList ? .checkmark : .none
+        dataSource.showCheckmarkInList ? .checkmark : .none
         cell.separatorInset = .zero
         return cell
     }
@@ -177,7 +184,7 @@ extension CountryPickerViewController {
 
 //MARK:- UITableViewDelegate
 extension CountryPickerViewController {
-
+    
     override public func tableView(_ tableView: UITableView, willDisplayHeaderView view: UIView, forSection section: Int) {
         if let header = view as? UITableViewHeaderFooterView {
             header.textLabel?.font = dataSource.sectionTitleLabelFont
@@ -190,8 +197,8 @@ extension CountryPickerViewController {
     override public func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
         let country = isSearchMode ? searchResults[indexPath.row]
-            : countries[sectionsTitles[indexPath.section]]![indexPath.row]
-
+        : countries[sectionsTitles[indexPath.section]]![indexPath.row]
+        
         searchController?.isActive = false
         searchController?.dismiss(animated: false, completion: nil)
         
@@ -214,28 +221,28 @@ extension CountryPickerViewController: UISearchResultsUpdating {
         if let text = searchController.searchBar.text, text.count > 0 {
             isSearchMode = true
             searchResults.removeAll()
-
+            
             var indexArray = [Country]()
-
+            
             // If we only want to show preferred countries, use the preferredCountries array
             if showOnlyPreferredSection && hasPreferredSection,
-                let array = countries[dataSource.preferredCountriesSectionTitle!] {
+               let array = countries[dataSource.preferredCountriesSectionTitle!] {
                 indexArray = array
             } else if let array = countries[String(text.capitalized[text.startIndex])] {
                 indexArray = array
             }
-
+            
             // Filter countries based on the search query
             searchResults.append(contentsOf: indexArray.filter({
                 let name = ($0.localizedName(dataSource.localeForCountryNameInList) ?? $0.name).lowercased()
                 let code = $0.code.lowercased() // Country code (e.g., "US", "IN")
                 let phoneCode = $0.phoneCode.lowercased() // Phone code (e.g., "+1", "+91")
                 let query = text.lowercased()
-
+                
                 // Check if the name, country code, or phone code contains the query
                 return name.contains(query) ||
-                       (dataSource.showCountryCodeInList && code.contains(query)) ||
-                       (dataSource.showPhoneCodeInList && phoneCode.contains(query))
+                (dataSource.showCountryCodeInList && code.contains(query)) ||
+                (dataSource.showPhoneCodeInList && phoneCode.contains(query))
             }))
         }
         tableView.reloadData()
@@ -308,7 +315,7 @@ class CountryPickerViewDataSourceInternal: CountryPickerViewDataSource {
     var sectionTitleLabelFont: UIFont {
         return view.dataSource?.sectionTitleLabelFont(in: view) ?? sectionTitleLabelFont(in: view)
     }
-
+    
     var sectionTitleLabelColor: UIColor? {
         return view.dataSource?.sectionTitleLabelColor(in: view)
     }
